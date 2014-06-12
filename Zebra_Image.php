@@ -708,12 +708,18 @@ class Zebra_Image
      *
      *                                          Default is #FFFFFF.
      *
+     *  @param int $minSizeNotBoxedPar          (Optional added By Rada) Int value used in Not Boxed option, to set a min value to the 
+     *                                          width or height (taking the smallest (height or width) and setting it to
+     *                                           220, the other one is calculated and is scaled.
+     *
+     *                                          Default 220
+     *
      *  @return boolean                         Returns TRUE on success or FALSE on error.
      *
      *                                          If FALSE is returned, check the {@link error} property to see what went
      *                                          wrong
      */
-    function resize($width = 0, $height = 0, $method = ZEBRA_IMAGE_CROP_CENTER, $background_color = '#FFFFFF')
+    function resize($width = 0, $height = 0, $method = ZEBRA_IMAGE_CROP_CENTER, $background_color = '#FFFFFF', $minSizeNotBoxedPar = 220)
     {
 
         // if image resource was successfully created
@@ -1016,6 +1022,20 @@ class Zebra_Image
                 // if aspect ratio doesn't need to be preserved or
                 // it needs to be preserved and method is ZEBRA_IMAGE_BOXED or ZEBRA_IMAGE_NOT_BOXED
                 } else {
+
+                    //Added by rada
+                    if ($method == ZEBRA_IMAGE_NOT_BOXED && $width > 0 && $height > 0) {
+                        if ($target_width < $target_height){
+                            $tmpWidth = $minSizeNotBoxedPar;
+                            $tmpHeight = $minSizeNotBoxedPar * $target_height / $target_width;
+                        }else{
+                            $tmpHeight = $minSizeNotBoxedPar;
+                            $tmpWidth = $minSizeNotBoxedPar * $target_width / $target_height;
+                        }
+
+                        $target_height = $tmpHeight;
+                        $target_width = $tmpWidth;
+                    }
 
                     // prepare the target image
                     $target_identifier = $this->_prepare_image(

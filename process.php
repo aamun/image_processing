@@ -7,6 +7,8 @@ require_once('S3.class.php');
 require_once('Zebra_Image.php');
 
 // Connect to db
+$connection = mysqli_connect(HOST,DB_USER,DB_PASSWORD);
+
 // Select db
 mysqli_select_db($connection, DB_NAME);
 
@@ -108,12 +110,19 @@ if (mysqli_num_rows($result) > 0) {
                         $thumb_width = $fileDetail[0];
                         $thumb_height = $fileDetail[1];
 
-                        $idProduct = $row['idProduct']
+                        $idProduct = $row['idProduct'];
+                        $imageName = $row['filename'];
 
-                        $result = mysqli_query($connection, "SELECT * FROM products WHERE idProduct = ".$idProduct);
+                        $querySelect = "SELECT * FROM products WHERE idProduct = ".$idProduct." AND image='".$imageName."'";
+
+                        echo $querySelect;
+
+                        $result = mysqli_query($connection, $querySelect);
 
                         if (mysqli_num_rows($result) > 0) {
-                            $sqlUpdate = "UPDATE products SET thumb_width = ".$thumb_width. ", thumb_height = ". $thumb_height." where idProduct = ".$idProduct;
+                            $sqlUpdate = "UPDATE products SET thumb_width = ".$thumb_width. ", thumb_height = ". $thumb_height." where idProduct = ".$idProduct." AND image='".$imageName."'";
+
+                            echo $sqlUpdate;
                             // update database
                             $result = mysqli_query($connection, $sqlUpdate);
                         }
