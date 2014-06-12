@@ -7,8 +7,6 @@ require_once('S3.class.php');
 require_once('Zebra_Image.php');
 
 // Connect to db
-$connection = mysqli_connect(HOST,DB_USER,DB_PASSWORD);
-
 // Select db
 mysqli_select_db($connection, DB_NAME);
 
@@ -53,7 +51,7 @@ if (mysqli_num_rows($result) > 0) {
 
     // Thumbnails sizes
     $expectedSizes = array(
-        'small' => array(180, 180),
+        'small' => array(220, 220),
         'medium' => array(640, 400),
         'large' => array(1280, 800)
     );
@@ -90,13 +88,37 @@ if (mysqli_num_rows($result) > 0) {
                 // Set thumbnail filename
                 $uriTo = $row['src']."/{$key}_".$row['filename'];
 
-                // Create thumbnail
-                if (!$image->resize($size[0], $size[1], ZEBRA_IMAGE_BOXED)) {
+                //Added by Radames
+                if ($key == "small"){
+                    $resizeOption = ZEBRA_IMAGE_NOT_BOXED;
+                }else{
+                    $resizeOption = ZEBRA_IMAGE_BOXED;
+                }
 
+                // Create thumbnail
+                if (!$image->resize($size[0], $size[1], $resizeOption)) {
                     // Handle error
                     echo "Error: {$tmpFile} {$size[0]}x{$size[1]}<br>";
                 } else {
                     echo "Success: {$tmpFile} ({$uriTo}) {$size[0]}x{$size[1]}<br>";
+
+                    if ($key == "small"){
+
+                        $fileDetail = getimagesize($tmpThumbnail);
+                        $thumb_width = $fileDetail[0];
+                        $thumb_height = $fileDetail[1];
+
+                        $idProduct = $row['idProduct']
+
+                        $result = mysqli_query($connection, "SELECT * FROM products WHERE idProduct = ".$idProduct);
+
+                        if (mysqli_num_rows($result) > 0) {
+                            $sqlUpdate = "UPDATE products SET thumb_width = ".$thumb_width. ", thumb_height = ". $thumb_height." where idProduct = ".$idProduct;
+                            // update database
+                            $result = mysqli_query($connection, $sqlUpdate);
+                        }
+                    }
+
                     // Save to S3
                     if($put = @S3::putObject(
                         S3::inputFile($tmpThumbnail),
