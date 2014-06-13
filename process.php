@@ -113,14 +113,19 @@ if (mysqli_num_rows($result) > 0) {
                         $idProduct = $row['idProduct'];
                         $imageName = $row['filename'];
 
-                        $querySelect = "SELECT * FROM products WHERE idProduct = ".$idProduct." AND image='".$imageName."'";
+                        $whereProduct ="";
+                        if ($idProduct != 0){
+                            $whereProduct = "idProduct = ".$idProduct." AND";
+                        }
+
+                        $querySelect = "SELECT * FROM products WHERE ".$whereProduct." image='".$imageName."' AND folder = '".$row['src']."'";
 
                         echo $querySelect;
 
                         $result = mysqli_query($connection, $querySelect);
 
                         if (mysqli_num_rows($result) > 0) {
-                            $sqlUpdate = "UPDATE products SET thumb_width = ".$thumb_width. ", thumb_height = ". $thumb_height." where idProduct = ".$idProduct." AND image='".$imageName."'";
+                            $sqlUpdate = "UPDATE products SET thumb_width = ".$thumb_width. ", thumb_height = ". $thumb_height." where ".$whereProduct." image='".$imageName."' AND folder = '".$row['src']."'";
 
                             echo $sqlUpdate;
                             // update database
