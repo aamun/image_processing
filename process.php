@@ -18,7 +18,7 @@ if ($connection->connect_error) {
 }
 
 // Find the next 3 images to be processed
-$result = mysqli_query($connection, "SELECT * FROM media WHERE status = 3 LIMIT 0,3");
+$result = mysqli_query($connection, "SELECT * FROM media WHERE status = 3 LIMIT 0,9");
 
 if($result === false){
     echo mysqli_error($connection);
@@ -31,7 +31,7 @@ if($result === false){
 
 // If rows found is more than 0
 if (mysqli_num_rows($result) > 0) {
-    
+   
     // Create S3 class
     $s3 = new S3(AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY, false);
 
@@ -63,6 +63,10 @@ if (mysqli_num_rows($result) > 0) {
 
     // Images loop
     while ($row = mysqli_fetch_array($result)) {
+
+        // echo ("<pre>");
+        // print_r(mysqli_fetch_array($result));
+        // echo ("</pre>");
 
         // print_r($row);
 
@@ -122,14 +126,14 @@ if (mysqli_num_rows($result) > 0) {
 
                         echo $querySelect;
 
-                        $result = mysqli_query($connection, $querySelect);
+                        $resultProducts = mysqli_query($connection, $querySelect);
 
-                        if (mysqli_num_rows($result) > 0) {
+                        if (mysqli_num_rows($resultProducts) > 0) {
                             $sqlUpdate = "UPDATE products SET thumb_width = ".$thumb_width. ", thumb_height = ". $thumb_height." where ".$whereProduct." image='".$imageName."' AND folder = '".$row['src']."'";
 
                             echo $sqlUpdate;
                             // update database
-                            $result = mysqli_query($connection, $sqlUpdate);
+                            $resultProducts = mysqli_query($connection, $sqlUpdate);
                         }
                     }
 
